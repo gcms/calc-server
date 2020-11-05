@@ -1,27 +1,24 @@
-package br.edu.ifg.web;
+package br.edu.ifg.web.web;
 
+import br.edu.ifg.web.service.Produto;
+import br.edu.ifg.web.service.ProdutoService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 @RequestMapping("/produtos")
 public class ProdutoController {
-    private static List<Produto> PRODUTOS = new ArrayList<>();
-
-    static {
-        PRODUTOS.add(new Produto(1, "Liquidificador", "", 123));
-        PRODUTOS.add(new Produto(2, "Máquina de Lavar", "", 1234));
-    }
+    @Autowired
+    ProdutoService service;
 
     @GetMapping("/")
     public String listar(ModelMap model) {
-        model.put("produtoList", PRODUTOS);
+        model.put("produtoList", service.listar());
         return "lista-produtos";
     }
 
@@ -32,34 +29,22 @@ public class ProdutoController {
 
     @PostMapping("/criar")
     public String criar(@RequestParam("nome") String nome, @RequestParam("preco") BigDecimal preco) {
-        Produto novo = new Produto((int) (Math.random() * 1000), nome, "", preco);
-        PRODUTOS.add(novo);
+        Produto novo = new Produto(nome, "", preco);
+        service.criar(novo);
 
         return "redirect:/produtos/";
     }
 
     @GetMapping("/{id}")
     public ModelAndView obter(@PathVariable("id") int id) {
-        Produto resultado = null;
-        for (Produto p : PRODUTOS) {
-            if (p.getId() == id) {
-                resultado = p;
-                break;
-            }
-        }
+        Produto resultado = service.obter(id);
 
         return new ModelAndView("ver-produto", new ModelMap("produto", resultado));
     }
 
     @RequestMapping(value = "/excluir/{id}", method = {RequestMethod.DELETE, RequestMethod.GET})
     public String excluir(@PathVariable("id") int id) {
-        for (Produto p : PRODUTOS) {
-            if (p.getId() == id) {
-                PRODUTOS.remove(p);
-                break;
-            }
-        }
-
+        service.excluir(id);
         return "redirect:/produtos/";
     }
 }

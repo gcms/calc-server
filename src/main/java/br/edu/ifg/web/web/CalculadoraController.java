@@ -1,4 +1,4 @@
-package br.edu.ifg.web;
+package br.edu.ifg.web.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
